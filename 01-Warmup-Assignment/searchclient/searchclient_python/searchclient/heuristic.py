@@ -13,7 +13,8 @@ class Heuristic(metaclass=ABCMeta):
 	def h(self, state: 'State') -> 'int':
 		'''
 		This function implements our heuristics:
-		--> We calculate the distance from all boxes A to all goals a, B to b, ... + the distance from the agent to all boxes
+		--> We calculate the distance from all boxes A to all goals a, B to b, ... + the distance from the agent to closest box
+		Note that the distance is diregarding of all walls!
 		'''
 
 		# get coordinates of all Boxes as dictionary of coordinate tuples
@@ -32,13 +33,13 @@ class Heuristic(metaclass=ABCMeta):
 		agentxy = (state.agent_row, state.agent_col)
 
 		btg = 0 # will be the cummulated sum of the distance of all Boxes To all Goals
-		atb = 0 # will be the cummulated sum of the Agent To all Boxes
+		atb = 0 # will be the cummulated sum of the Agent To the closest Box
 
 		for key, value in boxesxy.items():
 			if key in goalsxy: # check if goal for that box exists
 				for v in value:
 					btg +=  sum(tuple(abs(x-y) for x, y in zip(v, goalsxy[key]))) # Manhatten distance boxes to all goals
-					atb += sum(tuple(abs(x-y) for x, y in zip(v, agentxy))) # Manhatten distance agent to all boxes
+					atb= min(atb,sum(tuple(abs(x-y) for x, y in zip(v, agentxy)))) # Manhatten distance agent to closest box
 
 		return int(btg+atb)
 
